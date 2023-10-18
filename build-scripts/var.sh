@@ -11,7 +11,7 @@ BUILD_WASM=1
 ## Since multiple builds are provided in release versions (currently 4),
 ## this option saves time when enabled during development, 
 ## but must be disabled for all builds to be updated before a release. 
-BUILD_SINGLE=0
+BUILD_SINGLE=1
 
 # Include llvm binaries
 if [ $BUILD_WASM = 1 ]; then
@@ -31,23 +31,27 @@ fi
 
 # Build everything from scratch (rather than any incremental changes)
 # This should always be set to 1 in the Git repo, and buils should always be run with BUILD_CLEAN=1 before pushing.
-# However, it reduces compile time during development to set BUILD_CLEAN=0. 
-BUILD_CLEAN=1
+# However, it reduces compile time during development to set BimportUILD_CLEAN=0. 
+BUILD_CLEAN=0
 
 # Number of processes
 PROC=$(($(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)-1))
 
 OPTIM_FLAGS=(
-  -O3
+  -g3
+  --no-entry
+  -sSTANDALONE_WASM
+	-sEXPORTED_FUNCTIONS="_malloc,_free"
+  --minify 0
 )
 
-if [[ "$OSTYPE" == "linux-gnu"* ]] && [ $BUILD_WASM = 1 ]; then
-  # Use closure complier only in linux environment
-  OPTIM_FLAGS=(
-    "${OPTIM_FLAGS[@]}"
-    --closure 1
-  )
-fi
+# if [[ "$OSTYPE" == "linux-gnu"* ]] && [ $BUILD_WASM = 1 ]; then
+#   # Use closure complier only in linux environment
+#   OPTIM_FLAGS=(
+#     "${OPTIM_FLAGS[@]}"
+#     --closure 1
+#   )
+# fi
 
 # Convert array to string
 OPTIM_FLAGS="${OPTIM_FLAGS[@]}"
